@@ -5,594 +5,618 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>G&J Ferreterías — Modelo Financiero Interactivo · Salesforce</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #1a1a2e; }
-
-  /* HEADER */
-  .header {
-    background: #032D60;
-    color: white;
-    padding: 16px 32px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-  .header .logo { font-size: 22px; font-weight: 700; color: #00A1E0; letter-spacing: -0.5px; }
-  .header .logo span { color: white; }
-  .header h1 { font-size: 18px; font-weight: 500; }
-
-  /* LAYOUT */
-  .main { display: flex; min-height: calc(100vh - 64px); }
-  .left-panel { width: 460px; min-width: 420px; background: white; padding: 28px 32px; border-right: 1px solid #e0e8f0; overflow-y: auto; }
-  .right-panel { flex: 1; padding: 28px 36px; overflow-y: auto; background: #f0f4f9; }
-
-  /* SECTION TITLES */
-  .section-title {
-    font-size: 12px; font-weight: 700; color: #0070D2;
-    letter-spacing: 1.2px; text-transform: uppercase;
-    border-bottom: 2px solid #0070D2; padding-bottom: 8px;
-    margin-bottom: 20px; margin-top: 24px;
-  }
-  .section-title:first-child { margin-top: 0; }
-
-  /* FASE BUTTONS */
-  .fase-buttons { display: flex; gap: 12px; margin-bottom: 8px; }
-  .fase-btn {
-    flex: 1; padding: 12px 16px; border-radius: 8px; border: 2px solid #0070D2;
-    font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;
-    background: white; color: #0070D2;
-  }
-  .fase-btn.active { background: #0070D2; color: white; }
-  .fase-btn:hover:not(.active) { background: #e8f4fd; }
-
-  /* INPUT FIELDS */
-  .input-group { margin-bottom: 16px; }
-  .input-label {
-    display: flex; justify-content: space-between; align-items: center;
-    font-size: 13px; color: #444; margin-bottom: 6px; font-weight: 500;
-  }
-  .input-benchmark { font-size: 11px; color: #0070D2; font-weight: 600; }
-  .input-field {
-    width: 100%; padding: 10px 14px; border: 1.5px solid #d0dce8;
-    border-radius: 6px; font-size: 15px; color: #1a1a2e;
-    transition: border-color 0.2s; background: #f8fbff;
-  }
-  .input-field:focus { outline: none; border-color: #0070D2; background: white; }
-
-  /* RIGHT PANEL CARDS */
-  .metric-card {
-    background: white; border-radius: 12px; padding: 24px 28px;
-    margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,70,130,0.08);
-  }
-  .metric-card.primary {
-    background: linear-gradient(135deg, #032D60 0%, #0070D2 100%);
-    color: white;
-  }
-  .metric-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.75; margin-bottom: 6px; }
-  .metric-value { font-size: 44px; font-weight: 800; color: #0070D2; line-height: 1; }
-  .metric-card.primary .metric-value { color: white; }
-  .metric-sub { font-size: 13px; color: #888; margin-top: 4px; }
-  .metric-card.primary .metric-sub { color: rgba(255,255,255,0.7); }
-
-  /* METRICS ROW */
-  .metrics-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
-  .metric-small {
-    background: white; border-radius: 10px; padding: 18px 20px;
-    box-shadow: 0 2px 8px rgba(0,70,130,0.08); text-align: center;
-  }
-  .metric-small .metric-value { font-size: 28px; }
-
-  /* PALANCAS */
-  .palancas-title {
-    font-size: 18px; font-weight: 700; color: #032D60;
-    margin-bottom: 16px; padding-left: 12px;
-    border-left: 4px solid #0070D2;
-  }
-  .palanca-card {
-    background: white; border-radius: 10px; padding: 20px 22px;
-    margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,70,130,0.07);
-    border-left: 4px solid #0070D2;
-  }
-  .palanca-card:nth-child(2) { border-left-color: #FF6B35; }
-  .palanca-card:nth-child(3) { border-left-color: #7B61FF; }
-  .palanca-card:nth-child(4) { border-left-color: #00A84F; }
-  .palanca-card:nth-child(5) { border-left-color: #FF9500; }
-  .palanca-header { display: flex; justify-content: space-between; align-items: flex-start; }
-  .palanca-name { font-size: 15px; font-weight: 700; color: #032D60; }
-  .palanca-value { font-size: 20px; font-weight: 800; color: #0070D2; white-space: nowrap; }
-  .palanca-card:nth-child(2) .palanca-value { color: #FF6B35; }
-  .palanca-card:nth-child(3) .palanca-value { color: #7B61FF; }
-  .palanca-card:nth-child(4) .palanca-value { color: #00A84F; }
-  .palanca-card:nth-child(5) .palanca-value { color: #FF9500; }
-  .palanca-problem { font-size: 11px; font-weight: 700; color: #FF6B35; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 10px; }
-  .palanca-desc { font-size: 13px; color: #555; margin-top: 5px; line-height: 1.5; }
-
-  /* ROI TABLE */
-  .roi-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-  .roi-table th { background: #032D60; color: white; padding: 10px 14px; font-size: 13px; text-align: left; }
-  .roi-table td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid #e8f0f8; }
-  .roi-table tr:hover td { background: #f0f7ff; }
-  .roi-table .total-row td { background: #0070D2; color: white; font-weight: 700; }
-
-  /* REFERENCIA */
-  .referencia {
-    background: #f0f7ff; border-left: 4px solid #0070D2;
-    padding: 14px 18px; border-radius: 0 8px 8px 0;
-    margin-bottom: 20px; font-size: 13px; color: #0070D2;
-  }
-  .referencia strong { display: block; margin-bottom: 4px; }
-
-  /* DISCLAIMER */
-  .disclaimer {
-    background: #fff8e6; border: 1px solid #ffc107;
-    border-radius: 8px; padding: 12px 16px;
-    font-size: 12px; color: #7a5c00; margin-top: 20px;
-  }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #032D60; }
+.header { background: #032D60; color: white; padding: 16px 32px; display: flex; align-items: center; gap: 20px; }
+.header .logo { font-size: 22px; font-weight: 700; color: #00A1E0; }
+.header .logo span { color: white; }
+.header h1 { font-size: 16px; font-weight: 600; }
+.fase-section { background: white; padding: 20px 32px; border-bottom: 1px solid #e0e0e0; }
+.fase-section h3 { font-size: 11px; font-weight: 700; color: #0B7EC4; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+.fase-buttons { display: flex; gap: 12px; }
+.fase-btn { padding: 10px 24px; border-radius: 24px; border: 2px solid #0B7EC4; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.fase-btn.active { background: #032D60; color: white; border-color: #032D60; }
+.fase-btn:not(.active) { background: white; color: #032D60; }
+.fase-btn:hover:not(.active) { background: #EBF5FB; }
+.main { display: flex; min-height: calc(100vh - 120px); }
+.left-panel { width: 42%; background: white; padding: 24px 28px; border-right: 1px solid #e0e0e0; overflow-y: auto; }
+.section-title { font-size: 11px; font-weight: 700; color: #0B7EC4; letter-spacing: 1.5px; text-transform: uppercase; margin: 20px 0 14px; padding-bottom: 6px; border-bottom: 2px solid #0B7EC4; }
+.section-title:first-child { margin-top: 0; }
+.input-group { margin-bottom: 14px; }
+.input-label { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #444; margin-bottom: 5px; font-weight: 500; }
+.benchmark { font-size: 11px; color: #0B7EC4; font-weight: 600; }
+.input-field { width: 100%; padding: 9px 12px; border: 1px solid #d0d7de; border-radius: 6px; font-size: 14px; color: #032D60; background: #fafbfc; transition: border-color 0.2s; }
+.input-field:focus { outline: none; border-color: #0B7EC4; background: white; }
+.right-panel { width: 58%; padding: 24px 28px; background: #f4f6f9; overflow-y: auto; }
+.metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+.metric-card { background: white; border-radius: 10px; padding: 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.metric-card.primary { background: #032D60; color: white; grid-column: 1 / -1; text-align: center; padding: 24px; }
+.metric-card.primary .metric-label { color: #A8C7E8; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 6px; }
+.metric-card.primary .metric-value { font-size: 48px; font-weight: 700; color: #00A1E0; line-height: 1; margin-bottom: 4px; }
+.metric-card.primary .metric-sub { color: #A8C7E8; font-size: 12px; }
+.metric-label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+.metric-value { font-size: 24px; font-weight: 700; color: #032D60; }
+.metric-sub { font-size: 11px; color: #888; margin-top: 2px; }
+.callout { background: #EBF5FB; border-left: 4px solid #0B7EC4; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 20px; }
+.callout p { font-size: 13px; color: #032D60; line-height: 1.6; }
+.palancas-title { font-size: 15px; font-weight: 700; color: #032D60; margin-bottom: 14px; border-left: 4px solid #0B7EC4; padding-left: 10px; }
+.palanca-card { background: white; border-radius: 10px; padding: 14px 18px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); border-left: 4px solid transparent; }
+.palanca-card:nth-child(1) { border-left-color: #E84B4B; }
+.palanca-card:nth-child(2) { border-left-color: #0B7EC4; }
+.palanca-card:nth-child(3) { border-left-color: #7B4FD4; }
+.palanca-card:nth-child(4) { border-left-color: #F5A623; }
+.palanca-card:nth-child(5) { border-left-color: #2ECC71; }
+.palanca-header { display: flex; justify-content: space-between; align-items: flex-start; }
+.palanca-name { font-size: 13px; font-weight: 700; color: #032D60; }
+.palanca-value { font-size: 17px; font-weight: 700; color: #0B7EC4; white-space: nowrap; margin-left: 12px; }
+.palanca-desc { font-size: 12px; color: #666; margin-top: 3px; }
+.problema-badge { display: inline-block; background: #FFF3CD; color: #856404; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-top: 5px; text-transform: uppercase; }
+.roi-table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.07); margin-top: 20px; }
+.roi-table th { background: #032D60; color: white; padding: 10px 14px; text-align: right; font-size: 12px; }
+.roi-table th:first-child { text-align: left; }
+.roi-table td { padding: 9px 14px; text-align: right; font-size: 12px; border-bottom: 1px solid #f0f0f0; }
+.roi-table td:first-child { text-align: left; font-weight: 500; }
+.roi-table tr:last-child td { border-bottom: none; background: #EBF5FB; font-weight: 700; }
+.roi-table .total-row td { background: #032D60; color: white; font-weight: 700; border-bottom: none; }
+.calculos-toggle-btn { width: 100%; background: white; border: 2px dashed #0B7EC4; border-radius: 10px; padding: 13px 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; font-weight: 600; color: #0B7EC4; margin-top: 18px; transition: all 0.2s; }
+.calculos-toggle-btn:hover { background: #EBF5FB; }
+.calculos-section { display: none; margin-top: 14px; background: white; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: hidden; }
+.calculos-section.open { display: block; }
+.calc-header { background: #032D60; color: white; padding: 14px 22px; font-size: 14px; font-weight: 700; }
+.calc-pilar { border-bottom: 1px solid #f0f0f0; }
+.calc-pilar:last-child { border-bottom: none; }
+.calc-pilar-header { display: flex; justify-content: space-between; align-items: center; padding: 13px 22px; cursor: pointer; background: #fafbfc; transition: background 0.2s; border-left: 4px solid transparent; }
+.calc-pilar-header:hover { background: #EBF5FB; }
+.calc-pilar:nth-child(1) .calc-pilar-header { border-left-color: #E84B4B; }
+.calc-pilar:nth-child(2) .calc-pilar-header { border-left-color: #0B7EC4; }
+.calc-pilar:nth-child(3) .calc-pilar-header { border-left-color: #7B4FD4; }
+.calc-pilar:nth-child(4) .calc-pilar-header { border-left-color: #F5A623; }
+.calc-pilar:nth-child(5) .calc-pilar-header { border-left-color: #2ECC71; }
+.calc-pilar-title { font-size: 13px; font-weight: 700; color: #032D60; }
+.calc-pilar-amount { font-size: 13px; font-weight: 700; color: #0B7EC4; }
+.calc-pilar-arrow { font-size: 11px; color: #888; margin-left: 8px; transition: transform 0.3s; display: inline-block; }
+.calc-pilar-header.open .calc-pilar-arrow { transform: rotate(180deg); }
+.calc-pilar-body { display: none; padding: 0 22px 18px; }
+.calc-pilar-body.open { display: block; }
+.calc-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+.calc-table th { background: #EBF5FB; color: #032D60; padding: 7px 10px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; }
+.calc-table th:last-child { text-align: right; }
+.calc-table td { padding: 7px 10px; border-bottom: 1px solid #f5f5f5; color: #444; }
+.calc-table td:first-child { font-weight: 700; color: #032D60; width: 25px; }
+.calc-table td:last-child { text-align: right; font-weight: 600; color: #0B7EC4; white-space: nowrap; }
+.calc-formula { background: #F8F9FA; border: 1px solid #e8e8e8; border-radius: 6px; padding: 9px 12px; margin-top: 10px; font-size: 12px; color: #444; line-height: 1.5; }
+.calc-formula strong { color: #032D60; display: block; margin-bottom: 3px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; }
+.calc-result { background: #032D60; color: white; padding: 10px 14px; border-radius: 6px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+.calc-result .label { font-size: 11px; color: #A8C7E8; }
+.calc-result .value { font-size: 16px; font-weight: 700; color: #00A1E0; }
+.calc-note { font-size: 11px; color: #666; margin-top: 7px; font-style: italic; line-height: 1.4; }
+.input-summary-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+.input-summary-table th { background: #EBF5FB; color: #032D60; padding: 7px 10px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; }
+.input-summary-table td { padding: 7px 10px; border-bottom: 1px solid #f5f5f5; }
+.input-summary-table td:last-child { font-weight: 700; color: #0B7EC4; text-align: right; }
 </style>
 </head>
 <body>
 
 <div class="header">
   <div class="logo">☁ Sales<span>force</span></div>
-  <h1>G&amp;J Ferreterías — Modelo Financiero Interactivo · Sales Cloud + Service Cloud + Marketing Cloud</h1>
+  <h1>G&J Ferreterías — Modelo Financiero Interactivo · Sales Cloud + Service Cloud + Marketing Cloud + Agentforce</h1>
+</div>
+
+<div class="fase-section">
+  <h3>Empresa / Escenario</h3>
+  <div class="fase-buttons">
+    <button class="fase-btn active" onclick="setFase('gj')">Solo G&J Ferreterías — 190 vendedores</button>
+    <button class="fase-btn" onclick="setFase('grupo')">Grupo Consolidado — 226 vendedores (3 empresas)</button>
+  </div>
 </div>
 
 <div class="main">
-  <!-- LEFT PANEL -->
   <div class="left-panel">
-
-    <div class="section-title">FASE DE IMPLEMENTACIÓN</div>
-    <div class="fase-buttons">
-      <button class="fase-btn active" onclick="setFase(1, this)">Solo G&amp;J Ferreterías</button>
-      <button class="fase-btn" onclick="setFase(2, this)">Grupo Consolidado (3 empresas)</button>
-    </div>
-
-    <div class="section-title" style="margin-top:28px;">VARIABLES DE NEGOCIO G&amp;J</div>
-
+    <div class="section-title">Variables de Negocio</div>
     <div class="input-group">
-      <div class="input-label">
-        <span>Número de vendedores</span>
-        <span class="input-benchmark" id="bench-vendedores">G&amp;J: 190</span>
-      </div>
-      <input class="input-field" type="number" id="vendedores" value="190" oninput="calcular()">
+      <div class="input-label"><span>Número de vendedores</span></div>
+      <input class="input-field" id="vendedores" type="number" value="190" oninput="calcular()">
     </div>
-
     <div class="input-group">
-      <div class="input-label">
-        <span>Salario mensual vendedor (COP)</span>
-        <span class="input-benchmark">Dato cliente</span>
-      </div>
-      <input class="input-field" type="number" id="salario" value="4700000" oninput="calcular()">
+      <div class="input-label"><span>Salario promedio mensual (COP)</span><span class="benchmark">Dato cliente</span></div>
+      <input class="input-field" id="salario" type="number" value="4700000" oninput="calcular()">
     </div>
-
     <div class="input-group">
-      <div class="input-label">
-        <span>Meta de crecimiento anual (%)</span>
-        <span class="input-benchmark">G&amp;J: 12%</span>
-      </div>
-      <input class="input-field" type="number" id="meta_crecimiento" value="12" step="0.5" oninput="calcular()">
+      <div class="input-label"><span>Clientes nuevos por mes</span><span class="benchmark">Dato cliente</span></div>
+      <input class="input-field" id="clientesNuevos" type="number" value="1681" oninput="calcular()">
     </div>
-
     <div class="input-group">
-      <div class="input-label">
-        <span>Clientes nuevos por mes</span>
-        <span class="input-benchmark">Crédito + Mostrador</span>
-      </div>
-      <input class="input-field" type="number" id="clientes_nuevos" value="1681" oninput="calcular()">
+      <div class="input-label"><span>Mejora en tasa de conversión (%)</span><span class="benchmark">BVD: 10-20%</span></div>
+      <input class="input-field" id="mejoraTasa" type="number" value="15" oninput="calcular()">
     </div>
-
     <div class="input-group">
-      <div class="input-label">
-        <span>Mejora en conversión (%)</span>
-        <span class="input-benchmark">BVD: 10–20%</span>
-      </div>
-      <input class="input-field" type="number" id="mejora_conversion" value="15" step="0.5" oninput="calcular()">
+      <div class="input-label"><span>Ticket ponderado mensual (COP)</span></div>
+      <input class="input-field" id="ticket" type="number" value="19722624" oninput="calcular()">
     </div>
-
     <div class="input-group">
-      <div class="input-label">
-        <span>Ticket ponderado mensual (COP)</span>
-        <span class="input-benchmark">70% cartera + 30% mostrador</span>
-      </div>
-      <input class="input-field" type="number" id="ticket_ponderado" value="19722622" oninput="calcular()">
+      <div class="input-label"><span>Clientes perdidos por año</span></div>
+      <input class="input-field" id="clientesPerdidos" type="number" value="1500" oninput="calcular()">
     </div>
-
     <div class="input-group">
-      <div class="input-label">
-        <span>Clientes perdidos por año</span>
-        <span class="input-benchmark">Dato cliente</span>
-      </div>
-      <input class="input-field" type="number" id="clientes_perdidos" value="1500" oninput="calcular()">
+      <div class="input-label"><span>Mejora en reactivación (puntos %)</span><span class="benchmark">8.5% → 13.5%</span></div>
+      <input class="input-field" id="mejoraReact" type="number" value="5" oninput="calcular()">
     </div>
-
     <div class="input-group">
-      <div class="input-label">
-        <span>Tasa recuperación actual (%)</span>
-        <span class="input-benchmark">G&amp;J: 8.5%</span>
-      </div>
-      <input class="input-field" type="number" id="tasa_actual" value="8.5" step="0.5" oninput="calcular()">
+      <div class="input-label"><span>Ticket cartera mensual (COP)</span></div>
+      <input class="input-field" id="ticketCartera" type="number" value="24968031" oninput="calcular()">
     </div>
-
     <div class="input-group">
-      <div class="input-label">
-        <span>Tasa recuperación con Salesforce (%)</span>
-        <span class="input-benchmark">Meta conservadora</span>
-      </div>
-      <input class="input-field" type="number" id="tasa_sf" value="13.5" step="0.5" oninput="calcular()">
+      <div class="input-label"><span>Cotizaciones por vendedor/día</span></div>
+      <input class="input-field" id="cotizaciones" type="number" value="3" oninput="calcular()">
     </div>
-
     <div class="input-group">
-      <div class="input-label">
-        <span>Ticket cartera mensual (COP)</span>
-        <span class="input-benchmark">Ingreso ÷ 12 ÷ 4,000</span>
-      </div>
-      <input class="input-field" type="number" id="ticket_cartera" value="24968031" oninput="calcular()">
+      <div class="input-label"><span>Minutos ahorrados por cotización</span><span class="benchmark">40min → 15min</span></div>
+      <input class="input-field" id="minAhorrados" type="number" value="25" oninput="calcular()">
     </div>
-
     <div class="input-group">
-      <div class="input-label">
-        <span>Cotizaciones por vendedor por día</span>
-        <span class="input-benchmark">Dato cliente: 3</span>
-      </div>
-      <input class="input-field" type="number" id="cotizaciones" value="3" step="0.5" oninput="calcular()">
+      <div class="input-label"><span>Margen neto (%)</span><span class="benchmark">Dato cliente</span></div>
+      <input class="input-field" id="margen" type="number" value="5" oninput="calcular()">
     </div>
-
     <div class="input-group">
-      <div class="input-label">
-        <span>Minutos ahorrados por cotización</span>
-        <span class="input-benchmark">40 min → 15 min</span>
-      </div>
-      <input class="input-field" type="number" id="min_ahorrados" value="25" oninput="calcular()">
+      <div class="input-label"><span>Costo RD Station anual (COP)</span></div>
+      <input class="input-field" id="rdStation" type="number" value="30000000" oninput="calcular()">
     </div>
-
+    <div class="section-title">Inversión Salesforce</div>
     <div class="input-group">
-      <div class="input-label">
-        <span>Margen neto (%)</span>
-        <span class="input-benchmark">Dato cliente</span>
-      </div>
-      <input class="input-field" type="number" id="margen" value="5" step="0.5" oninput="calcular()">
+      <div class="input-label"><span>Implementación (USD, única vez)</span></div>
+      <input class="input-field" id="implementacion" type="number" value="148270" oninput="calcular()">
     </div>
-
-    <div class="section-title" style="margin-top:28px;">INVERSIÓN SALESFORCE (USD)</div>
-
     <div class="input-group">
-      <div class="input-label"><span>Implementación (una sola vez)</span></div>
-      <input class="input-field" type="number" id="impl" value="160000" oninput="calcular()">
+      <div class="input-label"><span>Licencias anuales (USD)</span></div>
+      <input class="input-field" id="licencias" type="number" value="100443" oninput="calcular()">
     </div>
-
-    <div class="input-group">
-      <div class="input-label"><span>Licencias anuales</span></div>
-      <input class="input-field" type="number" id="licencias" value="100443" oninput="calcular()">
-    </div>
-
     <div class="input-group">
       <div class="input-label"><span>TRM (COP / USD)</span></div>
-      <input class="input-field" type="number" id="trm" value="3450" oninput="calcular()">
+      <input class="input-field" id="trm" type="number" value="3450" oninput="calcular()">
     </div>
-
-    <div class="disclaimer">
-      ⚠️ <strong>Solo para uso interno.</strong> Este modelo es una estimación directional para conversaciones de discovery. Para un BVC oficial use <a href="https://www.solutionswork.space/value" target="_blank">BVD Tool</a>.
-    </div>
-
   </div>
 
-  <!-- RIGHT PANEL -->
   <div class="right-panel">
-
-    <!-- MAIN METRIC -->
-    <div class="metric-card primary">
-      <div class="metric-label">BENEFICIO ANUAL · PLENA MADUREZ (Año 3)</div>
-      <div class="metric-value" id="beneficio_anual">$2,247,679</div>
-      <div class="metric-sub">USD — Estado estable (100% adopción)</div>
-    </div>
-
-    <!-- METRICS ROW -->
-    <div class="metrics-row">
-      <div class="metric-small">
-        <div class="metric-label">ROI 3 AÑOS</div>
-        <div class="metric-value" id="roi_display" style="color:#00A84F;">875%</div>
+    <div class="metrics-grid">
+      <div class="metric-card primary">
+        <div class="metric-label">Beneficio Anual — Plena Madurez (Año 3+)</div>
+        <div class="metric-value" id="beneficioAnual">$0</div>
+        <div class="metric-sub">USD — steady-state</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">ROI 3 Años</div>
+        <div class="metric-value" id="roi3anos">0%</div>
         <div class="metric-sub">Retorno sobre inversión</div>
       </div>
-      <div class="metric-small">
-        <div class="metric-label">PAYBACK</div>
-        <div class="metric-value" id="payback_display" style="color:#FF6B35;">12.1</div>
-        <div class="metric-sub">meses desde la firma</div>
+      <div class="metric-card">
+        <div class="metric-label">Payback desde firma</div>
+        <div class="metric-value" id="payback">0 meses</div>
+        <div class="metric-sub">6 impl + X post go-live</div>
       </div>
-      <div class="metric-small">
-        <div class="metric-label">INVERSIÓN TOTAL 3 AÑOS</div>
-        <div class="metric-value" id="inversion_display" style="color:#7B61FF; font-size:22px;">$461,329</div>
-        <div class="metric-sub">USD total 3 años</div>
+      <div class="metric-card">
+        <div class="metric-label">Inversión Total 3 años</div>
+        <div class="metric-value" id="inversionTotal">$0</div>
+        <div class="metric-sub">USD</div>
       </div>
-      <div class="metric-small">
-        <div class="metric-label">POR CADA $1 INVERTIDO</div>
-        <div class="metric-value" id="multiplicador" style="color:#032D60;">$9.7</div>
-        <div class="metric-sub">USD de retorno</div>
-      </div>
-    </div>
-
-    <div class="referencia">
-      <strong>📚 Referencia Salesforce State of Sales Report 2024 + Forrester TEI</strong>
-      Benchmark: +27% productividad comercial · +15% win rate · 299% ROI Marketing Cloud a 3 años
-    </div>
-
-    <!-- PALANCAS -->
-    <div class="palancas-title">Las 5 palancas que vamos a atacar con Salesforce</div>
-
-    <div class="palanca-card">
-      <div class="palanca-header">
-        <div class="palanca-name">1. Crecer sin contratar — Evitar <span id="vendedores_evitados">23</span> contrataciones</div>
-        <div class="palanca-value" id="p1_value">$564,000</div>
-      </div>
-      <div class="palanca-problem">PROBLEMA HOY</div>
-      <div class="palanca-desc">Para crecer al <span id="p1_meta">12</span>% anual, G&J necesitaría contratar <span id="p1_vendedores">23</span> vendedores adicionales. Con Salesforce, el equipo actual de <span id="p1_equipo">190</span> vendedores logra esa meta sin nuevas contrataciones. Ahorro de nómina evitada: USD <span id="p1_detail">$564,000</span>/año.</div>
-    </div>
-
-    <div class="palanca-card">
-      <div class="palanca-header">
-        <div class="palanca-name">2. Mejora en conversión — +<span id="p2_pct">15</span>% sobre <span id="p2_clientes">1,681</span> clientes nuevos/mes</div>
-        <div class="palanca-value" id="p2_value">$864,069</div>
-      </div>
-      <div class="palanca-problem">PROBLEMA HOY</div>
-      <div class="palanca-desc">Sin pipeline visible ni seguimiento automatizado, G&J pierde oportunidades de cierre. Con Sales Cloud, pipeline unificado y cotizaciones rápidas, la tasa de conversión sube un <span id="p2_pct2">15</span>% — generando <span id="p2_adicionales">252</span> clientes adicionales por mes al margen neto.</div>
-    </div>
-
-    <div class="palanca-card">
-      <div class="palanca-header">
-        <div class="palanca-name">3. Reactivación de clientes perdidos — <span id="p3_adicionales">75</span> clientes recuperados</div>
-        <div class="palanca-value" id="p3_value">$325,670</div>
-      </div>
-      <div class="palanca-problem">PROBLEMA HOY</div>
-      <div class="palanca-desc"><span id="p3_perdidos">1,500</span> clientes se fueron el último año sin que nadie lo detectara a tiempo. Con alertas de churn + campañas de Marketing Cloud, la tasa de recuperación sube de <span id="p3_antes">8.5</span>% a <span id="p3_despues">13.5</span>% — recuperando <span id="p3_add2">75</span> clientes adicionales al año.</div>
-    </div>
-
-    <div class="palanca-card">
-      <div class="palanca-header">
-        <div class="palanca-name">4. Eficiencia en cotizaciones — <span id="p4_min">25</span> min ahorrados × <span id="p4_cot">3</span> cot/día × <span id="p4_vend">190</span> vendedores</div>
-        <div class="palanca-value" id="p4_value">$485,244</div>
-      </div>
-      <div class="palanca-problem">PROBLEMA HOY</div>
-      <div class="palanca-desc">Cada cotización toma 40 minutos de forma manual. Con Salesforce CPQ y plantillas automáticas baja a 15 min — ahorrando <span id="p4_min2">25</span> minutos por cotización × 3 cotizaciones × <span id="p4_vend2">190</span> vendedores × 22 días = miles de horas al año recuperadas.</div>
-    </div>
-
-    <div class="palanca-card">
-      <div class="palanca-header">
-        <div class="palanca-name">5. Ahorro plataforma RD Station — Reemplazada por Marketing Cloud</div>
-        <div class="palanca-value" id="p5_value">$8,696</div>
-      </div>
-      <div class="palanca-problem">AHORRO DIRECTO VERIFICABLE</div>
-      <div class="palanca-desc">Marketing Cloud reemplaza completamente RD Station. El contrato de RD Station se cancela al terminar la implementación (mes 7), generando ahorro fijo de $8,696 USD/año sin ningún supuesto adicional.</div>
-    </div>
-
-    <!-- ROI TABLE -->
-    <div class="metric-card" style="margin-top:24px;">
-      <div class="section-title" style="margin-top:0;">PROYECCIÓN ROI A 3 AÑOS</div>
-      <table class="roi-table">
-        <thead>
-          <tr>
-            <th>Concepto</th>
-            <th>Año 1</th>
-            <th>Año 2</th>
-            <th>Año 3</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Beneficio (con ramp)</td>
-            <td id="t_b1">$452,145</td>
-            <td id="t_b2">$1,799,882</td>
-            <td id="t_b3">$2,247,679</td>
-            <td id="t_bt">$4,499,706</td>
-          </tr>
-          <tr>
-            <td>Inversión total</td>
-            <td id="t_i1">$260,443</td>
-            <td id="t_i2">$100,443</td>
-            <td id="t_i3">$100,443</td>
-            <td id="t_it">$461,329</td>
-          </tr>
-          <tr>
-            <td>Beneficio neto</td>
-            <td id="t_n1">$191,702</td>
-            <td id="t_n2">$1,699,439</td>
-            <td id="t_n3">$2,147,236</td>
-            <td id="t_nt">$4,038,377</td>
-          </tr>
-          <tr class="total-row">
-            <td>ROI Acumulado</td>
-            <td id="t_r1">41%</td>
-            <td id="t_r2">409%</td>
-            <td id="t_r3">875%</td>
-            <td id="t_rt">875%</td>
-          </tr>
-        </tbody>
-      </table>
-      <div style="font-size:11px; color:#888; margin-top:10px;">
-        * Año 1: 6 meses implementación (sin beneficio) + 6 meses al 40% de adopción. Año 2: 80%. Año 3: 100%.
+      <div class="metric-card">
+        <div class="metric-label">Por cada $1 invertido</div>
+        <div class="metric-value" id="multiplicador">$0</div>
+        <div class="metric-sub">de retorno neto</div>
       </div>
     </div>
 
+    <div class="callout"><p id="calloutText"></p></div>
+
+    <div class="palancas-title">Las 5 palancas de valor con Salesforce</div>
+    <div id="palancasContainer">
+      <div class="palanca-card">
+        <div class="palanca-header">
+          <div>
+            <div class="palanca-name">1. Crecer sin contratar</div>
+            <div class="palanca-desc" id="p1desc">Benchmark industria B2B: crecer 12% en revenue requiere ~7% más headcount. Con Salesforce ese crecimiento se logra sin contratar.</div>
+            <span class="problema-badge">Problema hoy: crecimiento exige más headcount</span>
+          </div>
+          <div class="palanca-value" id="p1value">$0</div>
+        </div>
+      </div>
+      <div class="palanca-card">
+        <div class="palanca-header">
+          <div>
+            <div class="palanca-name">2. Mejora en conversión de nuevos clientes</div>
+            <div class="palanca-desc">+15% tasa de conversión × clientes nuevos/mes × ticket ponderado × margen 5%</div>
+            <span class="problema-badge">Problema hoy: oportunidades sin seguimiento se pierden</span>
+          </div>
+          <div class="palanca-value" id="p2value">$0</div>
+        </div>
+      </div>
+      <div class="palanca-card">
+        <div class="palanca-header">
+          <div>
+            <div class="palanca-name">3. Reactivación de clientes perdidos</div>
+            <div class="palanca-desc">Alertas de churn + Marketing Cloud sube recuperación de 8.5% a 13.5%</div>
+            <span class="problema-badge">Problema hoy: clientes perdidos sin alertas</span>
+          </div>
+          <div class="palanca-value" id="p3value">$0</div>
+        </div>
+      </div>
+      <div class="palanca-card">
+        <div class="palanca-header">
+          <div>
+            <div class="palanca-name">4. Eficiencia en cotizaciones</div>
+            <div class="palanca-desc">25 min ahorrados × 3 cotizaciones/día × vendedores × $COP/min</div>
+            <span class="problema-badge">Problema hoy: cotizaciones toman 40 minutos</span>
+          </div>
+          <div class="palanca-value" id="p4value">$0</div>
+        </div>
+      </div>
+      <div class="palanca-card">
+        <div class="palanca-header">
+          <div>
+            <div class="palanca-name">5. Ahorro plataforma RD Station</div>
+            <div class="palanca-desc">Marketing Cloud reemplaza RD Station — ahorro fijo desde mes 7 (post-implementación)</div>
+            <span class="problema-badge">Problema hoy: costo duplicado de herramientas</span>
+          </div>
+          <div class="palanca-value" id="p5value">$0</div>
+        </div>
+      </div>
+    </div>
+
+    <table class="roi-table" style="margin-top:20px">
+      <thead>
+        <tr><th>Concepto</th><th>Año 1</th><th>Año 2</th><th>Año 3</th><th>Total</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Beneficio (con ramp)</td><td id="b1">$0</td><td id="b2">$0</td><td id="b3">$0</td><td id="bTotal">$0</td></tr>
+        <tr><td>Implementación</td><td id="i1">$0</td><td>$0</td><td>$0</td><td id="iTotal">$0</td></tr>
+        <tr><td>Licencias</td><td id="l1">$0</td><td id="l2">$0</td><td id="l3">$0</td><td id="lTotal">$0</td></tr>
+        <tr><td>Total Inversión</td><td id="ti1">$0</td><td id="ti2">$0</td><td id="ti3">$0</td><td id="tiTotal">$0</td></tr>
+        <tr class="total-row"><td>Beneficio Neto</td><td id="bn1">$0</td><td id="bn2">$0</td><td id="bn3">$0</td><td id="bnTotal">$0</td></tr>
+        <tr><td>ROI Acumulado</td><td id="r1">0%</td><td id="r2">0%</td><td id="r3">0%</td><td id="rTotal">0%</td></tr>
+      </tbody>
+    </table>
+
+    <button class="calculos-toggle-btn" id="calcToggleBtn" onclick="toggleCalculos()">
+      🔢 Ver detalle de cálculos por pilar <span id="calcArrow">▼</span>
+    </button>
+
+    <div class="calculos-section" id="calculosSection">
+      <div class="calc-header">📋 Detalle de Cálculos — Transparencia Total</div>
+
+      <!-- PILAR 1 -->
+      <div class="calc-pilar">
+        <div class="calc-pilar-header" onclick="togglePilar(this)">
+          <span class="calc-pilar-title">Pilar 1 — Crecer sin contratar</span>
+          <span><span class="calc-pilar-amount" id="cp1">$0 USD/año</span><span class="calc-pilar-arrow">▼</span></span>
+        </div>
+        <div class="calc-pilar-body">
+          <table class="calc-table">
+            <thead><tr><th>#</th><th>Variable</th><th>Fórmula / Fuente</th><th>Valor</th></tr></thead>
+            <tbody>
+              <tr><td>A</td><td>Vendedores actuales</td><td>Dato del cliente</td><td id="cB">190</td></tr>
+              <tr><td>B</td><td>Benchmark headcount (% de crecimiento)</td><td>Industria B2B: 50-60% de tasa revenue</td><td>7%</td></tr>
+              <tr><td>C</td><td>Vendedores evitados</td><td>A × B</td><td id="cC">13</td></tr>
+              <tr><td>D</td><td>Salario promedio mensual</td><td>Dato del cliente</td><td id="cD">$4,700,000 COP</td></tr>
+              <tr><td>E</td><td>Carga prestacional</td><td>Estándar Colombia</td><td>50%</td></tr>
+              <tr><td>F</td><td>Costo total anual por vendedor</td><td>D × 12 × (1 + 50%)</td><td id="cF">$84,600,000 COP</td></tr>
+              <tr><td>G</td><td>Ahorro nómina evitada</td><td>C × F</td><td id="cG">$1,099,800,000 COP</td></tr>
+              <tr><td>H</td><td>TRM</td><td>Tasa aplicada</td><td id="cH">$3,450</td></tr>
+            </tbody>
+          </table>
+          <div class="calc-formula">
+            <strong>Fórmula</strong>
+            Ahorro USD = (Vendedores × 7%) × (Salario × 12 × 1.5) ÷ TRM<br>
+            <em>Benchmark: crecer 12% en revenue B2B requiere ~7% más headcount (50-60% de la tasa de crecimiento). Fuente: Gartner Sales Benchmark 2024.</em>
+          </div>
+          <div class="calc-result">
+            <span class="label">Beneficio anual Pilar 1</span>
+            <span class="value" id="cp1result">$0 USD</span>
+          </div>
+          <p class="calc-note">✅ No implica despidos — son los vendedores que NO se necesita contratar para lograr la meta de crecimiento del 12% gracias a la productividad que habilita Salesforce.</p>
+        </div>
+      </div>
+
+      <!-- PILAR 2 -->
+      <div class="calc-pilar">
+        <div class="calc-pilar-header" onclick="togglePilar(this)">
+          <span class="calc-pilar-title">Pilar 2 — Mejora en conversión de nuevos clientes</span>
+          <span><span class="calc-pilar-amount" id="cp2">$0 USD/año</span><span class="calc-pilar-arrow">▼</span></span>
+        </div>
+        <div class="calc-pilar-body">
+          <table class="calc-table">
+            <thead><tr><th>#</th><th>Variable</th><th>Fórmula / Fuente</th><th>Valor</th></tr></thead>
+            <tbody>
+              <tr><td>A</td><td>Clientes nuevos/mes</td><td>Dato del cliente</td><td id="d2A">1,681</td></tr>
+              <tr><td>B</td><td>Mejora en tasa de conversión</td><td>Benchmark Salesforce State of Sales</td><td id="d2B">15%</td></tr>
+              <tr><td>C</td><td>Clientes adicionales/mes</td><td>A × B</td><td id="d2C">252</td></tr>
+              <tr><td>D</td><td>Ticket ponderado mensual</td><td>70% cartera + 30% mostrador</td><td id="d2D">$19,722,624 COP</td></tr>
+              <tr><td>E</td><td>Margen neto</td><td>Dato del cliente</td><td id="d2E">5%</td></tr>
+              <tr><td>F</td><td>TRM</td><td>Tasa aplicada</td><td id="d2F">$3,450</td></tr>
+            </tbody>
+          </table>
+          <div class="calc-formula">
+            <strong>Fórmula</strong>
+            Beneficio USD = (Clientes nuevos × Mejora%) × Ticket × 12 meses × Margen% ÷ TRM
+          </div>
+          <div class="calc-result">
+            <span class="label">Beneficio anual Pilar 2</span>
+            <span class="value" id="cp2result">$0 USD</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PILAR 3 -->
+      <div class="calc-pilar">
+        <div class="calc-pilar-header" onclick="togglePilar(this)">
+          <span class="calc-pilar-title">Pilar 3 — Reactivación de clientes perdidos</span>
+          <span><span class="calc-pilar-amount" id="cp3">$0 USD/año</span><span class="calc-pilar-arrow">▼</span></span>
+        </div>
+        <div class="calc-pilar-body">
+          <table class="calc-table">
+            <thead><tr><th>#</th><th>Variable</th><th>Fórmula / Fuente</th><th>Valor</th></tr></thead>
+            <tbody>
+              <tr><td>A</td><td>Clientes perdidos último año</td><td>Dato del cliente</td><td id="d3A">1,500</td></tr>
+              <tr><td>B</td><td>Tasa recuperación actual</td><td>Dato del cliente</td><td>8.5%</td></tr>
+              <tr><td>C</td><td>Mejora en recuperación</td><td>Conservador +5 pp</td><td id="d3C">+5 pp</td></tr>
+              <tr><td>D</td><td>Clientes adicionales recuperados</td><td>A × C%</td><td id="d3D">75</td></tr>
+              <tr><td>E</td><td>Ticket cartera mensual</td><td>Ingreso anual ÷ 12 ÷ 4,000 clientes</td><td id="d3E">$24,968,031 COP</td></tr>
+              <tr><td>F</td><td>Margen neto</td><td>Dato del cliente</td><td id="d3F">5%</td></tr>
+            </tbody>
+          </table>
+          <div class="calc-formula">
+            <strong>Fórmula</strong>
+            Beneficio USD = (Perdidos × Mejora pp%) × Ticket cartera × 12 × Margen% ÷ TRM
+          </div>
+          <div class="calc-result">
+            <span class="label">Beneficio anual Pilar 3</span>
+            <span class="value" id="cp3result">$0 USD</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PILAR 4 -->
+      <div class="calc-pilar">
+        <div class="calc-pilar-header" onclick="togglePilar(this)">
+          <span class="calc-pilar-title">Pilar 4 — Eficiencia en cotizaciones</span>
+          <span><span class="calc-pilar-amount" id="cp4">$0 USD/año</span><span class="calc-pilar-arrow">▼</span></span>
+        </div>
+        <div class="calc-pilar-body">
+          <table class="calc-table">
+            <thead><tr><th>#</th><th>Variable</th><th>Fórmula / Fuente</th><th>Valor</th></tr></thead>
+            <tbody>
+              <tr><td>A</td><td>Cotizaciones/día/vendedor</td><td>Dato del cliente</td><td id="d4A">3</td></tr>
+              <tr><td>B</td><td>Minutos ahorrados por cotización</td><td>40 min → 15 min con CPQ</td><td id="d4B">25 min</td></tr>
+              <tr><td>C</td><td>Vendedores</td><td>Dato del cliente</td><td id="d4C">190</td></tr>
+              <tr><td>D</td><td>Días laborables/mes</td><td>Estándar Colombia</td><td>22 días</td></tr>
+              <tr><td>E</td><td>Costo por minuto</td><td>Salario ÷ (22 × 8h × 60min)</td><td id="d4E">$445 COP/min</td></tr>
+            </tbody>
+          </table>
+          <div class="calc-formula">
+            <strong>Fórmula</strong>
+            Ahorro USD = Cotizaciones × Min ahorrados × Vendedores × 22 días × 12 meses × Costo/min ÷ TRM
+          </div>
+          <div class="calc-result">
+            <span class="label">Beneficio anual Pilar 4</span>
+            <span class="value" id="cp4result">$0 USD</span>
+          </div>
+          <p class="calc-note">⚠️ Ahorro de costo directo — no aplica margen 5% porque es tiempo pagado recuperado, no revenue incremental.</p>
+        </div>
+      </div>
+
+      <!-- PILAR 5 -->
+      <div class="calc-pilar">
+        <div class="calc-pilar-header" onclick="togglePilar(this)">
+          <span class="calc-pilar-title">Pilar 5 — Ahorro plataforma RD Station</span>
+          <span><span class="calc-pilar-amount" id="cp5">$0 USD/año</span><span class="calc-pilar-arrow">▼</span></span>
+        </div>
+        <div class="calc-pilar-body">
+          <table class="calc-table">
+            <thead><tr><th>#</th><th>Variable</th><th>Fórmula / Fuente</th><th>Valor</th></tr></thead>
+            <tbody>
+              <tr><td>A</td><td>Costo anual RD Station</td><td>Factura del cliente (verificable)</td><td id="d5A">$30,000,000 COP</td></tr>
+              <tr><td>B</td><td>TRM</td><td>Tasa aplicada</td><td id="d5B">$3,450</td></tr>
+              <tr><td>C</td><td>Inicio del ahorro</td><td>Mes 7 — fin de implementación</td><td>Mes 7</td></tr>
+              <tr><td>D</td><td>Ahorro Año 1 (6 meses)</td><td>A ÷ B ÷ 2</td><td id="d5D">$4,348 USD</td></tr>
+              <tr><td>E</td><td>Ahorro Año 2 y 3 (12 meses)</td><td>A ÷ B</td><td id="d5E">$8,696 USD/año</td></tr>
+            </tbody>
+          </table>
+          <div class="calc-formula">
+            <strong>Fórmula</strong>
+            Ahorro anual USD = Costo RD Station COP ÷ TRM<br>
+            <em>Sin ramp-up — ahorro fijo e inmediato al cancelar contrato en mes 7.</em>
+          </div>
+          <div class="calc-result">
+            <span class="label">Total 3 años Pilar 5</span>
+            <span class="value" id="cp5result">$0 USD</span>
+          </div>
+          <p class="calc-note">✅ Marketing Cloud reemplaza completamente RD Station. Único pilar sin ramp-up.</p>
+        </div>
+      </div>
+
+      <!-- INPUT SUMMARY -->
+      <div class="calc-pilar">
+        <div class="calc-pilar-header" onclick="togglePilar(this)" style="border-left-color:#032D60">
+          <span class="calc-pilar-title">📊 Resumen de todos los inputs del modelo</span>
+          <span><span class="calc-pilar-arrow">▼</span></span>
+        </div>
+        <div class="calc-pilar-body">
+          <table class="input-summary-table">
+            <thead><tr><th>Variable</th><th>Valor</th></tr></thead>
+            <tbody>
+              <tr><td>Vendedores</td><td id="s_v">190</td></tr>
+              <tr><td>Salario promedio mensual</td><td id="s_sal">$4,700,000 COP</td></tr>
+              <tr><td>Benchmark headcount Pilar 1</td><td>7% (industria B2B)</td></tr>
+              <tr><td>Clientes nuevos/mes</td><td id="s_cn">1,681</td></tr>
+              <tr><td>Mejora tasa conversión</td><td id="s_mt">15%</td></tr>
+              <tr><td>Ticket ponderado</td><td id="s_tk">$19,722,624 COP</td></tr>
+              <tr><td>Clientes perdidos/año</td><td id="s_cp">1,500</td></tr>
+              <tr><td>Mejora reactivación</td><td id="s_mr">+5 pp</td></tr>
+              <tr><td>Ticket cartera mensual</td><td id="s_tkc">$24,968,031 COP</td></tr>
+              <tr><td>Cotizaciones/día/vendedor</td><td id="s_cot">3</td></tr>
+              <tr><td>Minutos ahorrados/cotización</td><td id="s_min">25 min</td></tr>
+              <tr><td>Margen neto</td><td id="s_mg">5%</td></tr>
+              <tr><td>Costo RD Station/año</td><td id="s_rd">$30,000,000 COP</td></tr>
+              <tr><td>TRM (COP/USD)</td><td id="s_trm">$3,450</td></tr>
+              <tr><td>Implementación</td><td id="s_impl">$148,270 USD</td></tr>
+              <tr><td>Licencias anuales</td><td id="s_lic">$100,443 USD</td></tr>
+              <tr><td>Ramp Año 1 (post go-live, 6 meses)</td><td>40%</td></tr>
+              <tr><td>Ramp Año 2</td><td>80%</td></tr>
+              <tr><td>Ramp Año 3</td><td>100%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
-let fase = 1;
+const FASES = {
+  gj:    { vendedores:190, salario:4700000, clientesNuevos:1681, mejoraTasa:15, ticket:19722624, clientesPerdidos:1500, mejoraReact:5, ticketCartera:24968031, cotizaciones:3, minAhorrados:25, margen:5, rdStation:30000000, implementacion:148270, licencias:100443, trm:3450, crecimiento:12 },
+  grupo: { vendedores:226, salario:5367434, clientesNuevos:1706, mejoraTasa:15, ticket:22000000, clientesPerdidos:2000, mejoraReact:5, ticketCartera:28000000, cotizaciones:3, minAhorrados:25, margen:5, rdStation:90000000, implementacion:169974.15, licencias:128777, trm:3450, crecimiento:12 }
+};
 
-function setFase(n, btn) {
-  fase = n;
-  document.querySelectorAll('.fase-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-
-  if (n === 1) {
-    document.getElementById('vendedores').value = 190;
-    document.getElementById('salario').value = 4700000;
-    document.getElementById('meta_crecimiento').value = 12;
-    document.getElementById('clientes_nuevos').value = 1681;
-    document.getElementById('ticket_ponderado').value = 19722622;
-    document.getElementById('clientes_perdidos').value = 1500;
-    document.getElementById('tasa_actual').value = 8.5;
-    document.getElementById('tasa_sf').value = 13.5;
-    document.getElementById('ticket_cartera').value = 24968031;
-    document.getElementById('impl').value = 160000;
-    document.getElementById('licencias').value = 100443;
-    document.getElementById('bench-vendedores').textContent = 'G&J: 190';
-  } else {
-    document.getElementById('vendedores').value = 226;
-    document.getElementById('salario').value = 5200000;
-    document.getElementById('meta_crecimiento').value = 15;
-    document.getElementById('clientes_nuevos').value = 2100;
-    document.getElementById('ticket_ponderado').value = 28000000;
-    document.getElementById('clientes_perdidos').value = 2100;
-    document.getElementById('tasa_actual').value = 8.5;
-    document.getElementById('tasa_sf').value = 13.5;
-    document.getElementById('ticket_cartera').value = 35000000;
-    document.getElementById('impl').value = 173520;
-    document.getElementById('licencias').value = 128777;
-    document.getElementById('bench-vendedores').textContent = 'Grupo: 226';
-  }
+function setFase(fase) {
+  document.querySelectorAll('.fase-btn').forEach((b,i) => b.classList.toggle('active', (fase==='gj'&&i===0)||(fase==='grupo'&&i===1)));
+  const d = FASES[fase];
+  Object.entries(d).forEach(([k,v]) => { const el = document.getElementById(k); if(el) el.value = v; });
   calcular();
 }
 
-function fmt(n) {
-  return '$' + Math.round(n).toLocaleString('en-US');
-}
-function fmtPct(n) {
-  return Math.round(n) + '%';
-}
+function fmt(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+function fmtCOP(n) { return '$' + Math.round(n).toLocaleString('en-US') + ' COP'; }
+function set(id, val) { const el = document.getElementById(id); if(el) el.textContent = val; }
 
 function calcular() {
-  const trm = parseFloat(document.getElementById('trm').value) || 3450;
-  const vendedores = parseFloat(document.getElementById('vendedores').value) || 190;
-  const salario = parseFloat(document.getElementById('salario').value) || 4700000;
-  const meta = parseFloat(document.getElementById('meta_crecimiento').value) || 12;
-  const clientes_nuevos = parseFloat(document.getElementById('clientes_nuevos').value) || 1681;
-  const mejora_conv = parseFloat(document.getElementById('mejora_conversion').value) || 15;
-  const ticket_pond = parseFloat(document.getElementById('ticket_ponderado').value) || 19722622;
-  const clientes_perdidos = parseFloat(document.getElementById('clientes_perdidos').value) || 1500;
-  const tasa_actual = parseFloat(document.getElementById('tasa_actual').value) || 8.5;
-  const tasa_sf = parseFloat(document.getElementById('tasa_sf').value) || 13.5;
-  const ticket_cartera = parseFloat(document.getElementById('ticket_cartera').value) || 24968031;
-  const cotizaciones = parseFloat(document.getElementById('cotizaciones').value) || 3;
-  const min_ahorrados = parseFloat(document.getElementById('min_ahorrados').value) || 25;
-  const margen = parseFloat(document.getElementById('margen').value) || 5;
-  const impl = parseFloat(document.getElementById('impl').value) || 160000;
-  const licencias = parseFloat(document.getElementById('licencias').value) || 100443;
+  const v   = +document.getElementById('vendedores').value||0;
+  const sal = +document.getElementById('salario').value||0;
+  const cn  = +document.getElementById('clientesNuevos').value||0;
+  const mt  = +document.getElementById('mejoraTasa').value/100||0;
+  const tk  = +document.getElementById('ticket').value||0;
+  const cp  = +document.getElementById('clientesPerdidos').value||0;
+  const mr  = +document.getElementById('mejoraReact').value/100||0;
+  const tkc = +document.getElementById('ticketCartera').value||0;
+  const cot = +document.getElementById('cotizaciones').value||0;
+  const min = +document.getElementById('minAhorrados').value||0;
+  const mg  = +document.getElementById('margen').value/100||0;
+  const rd  = +document.getElementById('rdStation').value||0;
+  const impl= +document.getElementById('implementacion').value||0;
+  const lic = +document.getElementById('licencias').value||0;
+  const trm = +document.getElementById('trm').value||3450;
 
-  // PILAR 1: Crecer sin contratar
-  const vend_adicionales = Math.round(vendedores * meta / 100);
-  const carga_prestacional = 0.50;
-  const costo_anual_vend = salario * 12 * (1 + carga_prestacional);
-  const p1 = (vend_adicionales * costo_anual_vend) / trm;
+  // PILAR 1 — Opción C: 7% benchmark industria B2B
+  const vNuevos = Math.round(v * 0.07);
+  const costoAnual = sal * 12 * 1.5;
+  const p1 = (vNuevos * costoAnual) / trm;
 
-  // PILAR 2: Mejora en conversión
-  const clientes_adicionales = Math.round(clientes_nuevos * mejora_conv / 100);
-  const p2 = (clientes_adicionales * ticket_pond * 12 * (margen / 100)) / trm;
+  // PILAR 2
+  const cliAd = Math.round(cn * mt);
+  const p2 = (cliAd * tk * 12 * mg) / trm;
 
-  // PILAR 3: Reactivación
-  const clientes_rec = Math.round(clientes_perdidos * (tasa_sf - tasa_actual) / 100);
-  const p3 = (clientes_rec * ticket_cartera * 12 * (margen / 100)) / trm;
+  // PILAR 3
+  const cliRec = Math.round(cp * mr);
+  const p3 = (cliRec * tkc * 12 * mg) / trm;
 
-  // PILAR 4: Cotizaciones
-  const min_laborables = 22 * 8 * 60;
-  const costo_min = salario / min_laborables;
-  const p4 = (min_ahorrados * cotizaciones * vendedores * 22 * 12 * costo_min) / trm;
+  // PILAR 4
+  const costoMin = sal / (22 * 8 * 60);
+  const p4 = (cot * min * v * 22 * 12 * costoMin) / trm;
 
-  // PILAR 5: RD Station (fijo, 2.5 años, sin ramp)
-  const rd_anual = 30000000 / trm;
-  const rd_a1 = rd_anual / 2;
-  const rd_a2 = rd_anual;
-  const rd_a3 = rd_anual;
+  // PILAR 5
+  const p5a = rd / trm;
+  const p5_a1 = p5a / 2;
+  const p5_a2 = p5a;
+  const p5_a3 = p5a;
+  const p5_total3 = p5_a1 + p5_a2 + p5_a3;
 
-  // Beneficio anual steady state (pilares 1-4 al 100%)
-  const beneficio_steady = p1 + p2 + p3 + p4 + rd_anual;
+  const totalAnual = p1 + p2 + p3 + p4 + p5a;
 
-  // Año 1: 6 meses impl (sin beneficio) + 6 meses al 40% + RD Station 6 meses
-  const b1 = (p1 + p2 + p3 + p4) * 0.40 * (6/12) + rd_a1;
-  const b2 = (p1 + p2 + p3 + p4) * 0.80 + rd_a2;
-  const b3 = (p1 + p2 + p3 + p4) * 1.00 + rd_a3;
-  const bt = b1 + b2 + b3;
+  // RAMP: meses 1-6 impl → 0; meses 7-12 → 40% de pilares 1-4; RD desde mes 7
+  const b1 = (p1+p2+p3+p4)*0.4*0.5 + p5_a1;
+  const b2 = (p1+p2+p3+p4)*0.8 + p5_a2;
+  const b3 = (p1+p2+p3+p4)*1.0 + p5_a3;
+  const bTotal = b1+b2+b3;
 
-  // Inversión
-  const i1 = impl + licencias;
-  const i2 = licencias;
-  const i3 = licencias;
-  const it = i1 + i2 + i3;
+  const ti1=impl+lic, ti2=lic, ti3=lic, tiTotal=impl+lic*3;
+  const bn1=b1-ti1, bn2=b2-ti2, bn3=b3-ti3, bnTotal=bTotal-tiTotal;
+  const roi3 = tiTotal>0 ? (bnTotal/tiTotal)*100 : 0;
+  const bMes = (p1+p2+p3+p4)*0.4/12 + p5a/12;
+  const payback = 6 + (tiTotal / (bMes||1));
+  const mult = tiTotal>0 ? (bnTotal/tiTotal)+1 : 0;
 
-  // Neto
-  const n1 = b1 - i1;
-  const n2 = b2 - i2;
-  const n3 = b3 - i3;
-  const nt = bt - it;
+  // MÉTRICAS
+  set('beneficioAnual', fmt(totalAnual));
+  set('roi3anos', Math.round(roi3)+'%');
+  set('payback', payback.toFixed(1)+' meses');
+  set('inversionTotal', fmt(tiTotal));
+  set('multiplicador', '$'+mult.toFixed(1)+' USD');
 
-  // ROI acumulado
-  const roi1 = ((b1 - i1) / it) * 100;
-  const roi2 = ((b1 + b2 - i1 - i2) / it) * 100;
-  const roi3 = ((bt - it) / it) * 100;
+  // PALANCAS
+  set('p1value', fmt(p1)); set('p2value', fmt(p2)); set('p3value', fmt(p3));
+  set('p4value', fmt(p4)); set('p5value', fmt(p5a));
 
-  // Payback: meses desde firma
-  const beneficio_mensual_post = (p1 + p2 + p3 + p4) * 0.40 / 12 + rd_anual / 12;
-  const meses_post_golive = it / beneficio_mensual_post;
-  const payback_total = 6 + meses_post_golive;
+  // ROI TABLE
+  set('b1',fmt(b1)); set('b2',fmt(b2)); set('b3',fmt(b3)); set('bTotal',fmt(bTotal));
+  set('i1',fmt(impl)); set('iTotal',fmt(impl));
+  set('l1',fmt(lic)); set('l2',fmt(lic)); set('l3',fmt(lic)); set('lTotal',fmt(lic*3));
+  set('ti1',fmt(ti1)); set('ti2',fmt(ti2)); set('ti3',fmt(ti3)); set('tiTotal',fmt(tiTotal));
+  set('bn1',fmt(bn1)); set('bn2',fmt(bn2)); set('bn3',fmt(bn3)); set('bnTotal',fmt(bnTotal));
+  const cum1=Math.round(((b1-ti1)/tiTotal)*100);
+  const cum2=Math.round(((b1+b2-ti1-ti2)/tiTotal)*100);
+  set('r1',cum1+'%'); set('r2',cum2+'%'); set('r3',Math.round(roi3)+'%'); set('rTotal',Math.round(roi3)+'%');
 
-  const multiplicador = bt / it;
+  // CÁLCULOS DETALLADOS — PILAR 1
+  set('cB', v); set('cC', vNuevos); set('cD', fmtCOP(sal));
+  set('cF', fmtCOP(costoAnual)); set('cG', fmtCOP(vNuevos*costoAnual)); set('cH','$'+trm.toLocaleString());
+  set('cp1','$'+Math.round(p1).toLocaleString()+' USD/año'); set('cp1result',fmt(p1)+' USD');
 
-  // Update UI
-  document.getElementById('beneficio_anual').textContent = fmt(beneficio_steady);
-  document.getElementById('roi_display').textContent = fmtPct(roi3);
-  document.getElementById('payback_display').textContent = payback_total.toFixed(1);
-  document.getElementById('inversion_display').textContent = fmt(it);
-  document.getElementById('multiplicador').textContent = '$' + multiplicador.toFixed(1);
+  // PILAR 2
+  set('d2A',cn.toLocaleString()); set('d2B',(mt*100).toFixed(0)+'%'); set('d2C',cliAd.toLocaleString());
+  set('d2D',fmtCOP(tk)); set('d2E',(mg*100).toFixed(0)+'%'); set('d2F','$'+trm.toLocaleString());
+  set('cp2','$'+Math.round(p2).toLocaleString()+' USD/año'); set('cp2result',fmt(p2)+' USD');
 
-  // Palancas
-  document.getElementById('p1_value').textContent = fmt(p1);
-  document.getElementById('vendedores_evitados').textContent = vend_adicionales;
-  document.getElementById('p1_meta').textContent = meta;
-  document.getElementById('p1_vendedores').textContent = vend_adicionales;
-  document.getElementById('p1_equipo').textContent = vendedores;
-  document.getElementById('p1_detail').textContent = fmt(p1);
+  // PILAR 3
+  set('d3A',cp.toLocaleString()); set('d3C','+'+(mr*100).toFixed(0)+' pp'); set('d3D',cliRec.toLocaleString());
+  set('d3E',fmtCOP(tkc)); set('d3F',(mg*100).toFixed(0)+'%');
+  set('cp3','$'+Math.round(p3).toLocaleString()+' USD/año'); set('cp3result',fmt(p3)+' USD');
 
-  document.getElementById('p2_value').textContent = fmt(p2);
-  document.getElementById('p2_pct').textContent = mejora_conv;
-  document.getElementById('p2_clientes').textContent = clientes_nuevos.toLocaleString('en-US');
-  document.getElementById('p2_pct2').textContent = mejora_conv;
-  document.getElementById('p2_adicionales').textContent = clientes_adicionales.toLocaleString('en-US');
+  // PILAR 4
+  set('d4A',cot); set('d4B',min+' min'); set('d4C',v); set('d4E','$'+Math.round(costoMin).toLocaleString()+' COP/min');
+  set('cp4','$'+Math.round(p4).toLocaleString()+' USD/año'); set('cp4result',fmt(p4)+' USD');
 
-  document.getElementById('p3_value').textContent = fmt(p3);
-  document.getElementById('p3_perdidos').textContent = clientes_perdidos.toLocaleString('en-US');
-  document.getElementById('p3_antes').textContent = tasa_actual;
-  document.getElementById('p3_despues').textContent = tasa_sf;
-  document.getElementById('p3_adicionales').textContent = clientes_rec;
-  document.getElementById('p3_add2').textContent = clientes_rec;
+  // PILAR 5
+  set('d5A',fmtCOP(rd)); set('d5B','$'+trm.toLocaleString());
+  set('d5D',fmt(p5_a1)+' USD'); set('d5E',fmt(p5a)+' USD/año');
+  set('cp5','$'+Math.round(p5a).toLocaleString()+' USD/año'); set('cp5result',fmt(p5_total3)+' USD');
 
-  document.getElementById('p4_value').textContent = fmt(p4);
-  document.getElementById('p4_min').textContent = min_ahorrados;
-  document.getElementById('p4_cot').textContent = cotizaciones;
-  document.getElementById('p4_vend').textContent = vendedores;
-  document.getElementById('p4_min2').textContent = min_ahorrados;
-  document.getElementById('p4_vend2').textContent = vendedores;
+  // INPUT SUMMARY
+  set('s_v',v); set('s_sal',fmtCOP(sal)); set('s_cn',cn.toLocaleString());
+  set('s_mt',(mt*100).toFixed(0)+'%'); set('s_tk',fmtCOP(tk)); set('s_cp',cp.toLocaleString());
+  set('s_mr','+'+(mr*100).toFixed(0)+' pp'); set('s_tkc',fmtCOP(tkc));
+  set('s_cot',cot); set('s_min',min+' min'); set('s_mg',(mg*100).toFixed(0)+'%');
+  set('s_rd',fmtCOP(rd)); set('s_trm','$'+trm.toLocaleString());
+  set('s_impl',fmt(impl)+' USD'); set('s_lic',fmt(lic)+' USD');
 
-  document.getElementById('p5_value').textContent = fmt(rd_anual);
-
-  // Table
-  document.getElementById('t_b1').textContent = fmt(b1);
-  document.getElementById('t_b2').textContent = fmt(b2);
-  document.getElementById('t_b3').textContent = fmt(b3);
-  document.getElementById('t_bt').textContent = fmt(bt);
-  document.getElementById('t_i1').textContent = fmt(i1);
-  document.getElementById('t_i2').textContent = fmt(i2);
-  document.getElementById('t_i3').textContent = fmt(i3);
-  document.getElementById('t_it').textContent = fmt(it);
-  document.getElementById('t_n1').textContent = fmt(n1);
-  document.getElementById('t_n2').textContent = fmt(n2);
-  document.getElementById('t_n3').textContent = fmt(n3);
-  document.getElementById('t_nt').textContent = fmt(nt);
-  document.getElementById('t_r1').textContent = fmtPct(roi1);
-  document.getElementById('t_r2').textContent = fmtPct(roi2);
-  document.getElementById('t_r3').textContent = fmtPct(roi3);
-  document.getElementById('t_rt').textContent = fmtPct(roi3);
+  // CALLOUT
+  set('calloutText', '');
+  document.getElementById('calloutText').innerHTML =
+    `Con Salesforce, G&J puede <strong>alcanzar su meta de crecimiento sin contratar ${vNuevos} vendedores adicionales</strong> (benchmark industria B2B), mejorar la conversión de <strong>${cn.toLocaleString()} clientes nuevos/mes</strong>, recuperar <strong>${cliRec} clientes perdidos adicionales</strong> con Marketing Cloud, y ahorrar <strong>${min} min por cotización</strong> en ${v} vendedores — generando <strong>${fmt(totalAnual)} USD de valor anual</strong>.`;
 }
 
-// Initial calculation
+function toggleCalculos() {
+  const s = document.getElementById('calculosSection');
+  const a = document.getElementById('calcArrow');
+  s.classList.toggle('open');
+  a.textContent = s.classList.contains('open') ? '▲' : '▼';
+  document.getElementById('calcToggleBtn').innerHTML = s.classList.contains('open')
+    ? '🔢 Ocultar detalle de cálculos <span id="calcArrow">▲</span>'
+    : '🔢 Ver detalle de cálculos por pilar <span id="calcArrow">▼</span>';
+}
+
+function togglePilar(header) {
+  header.classList.toggle('open');
+  header.nextElementSibling.classList.toggle('open');
+}
+
 calcular();
 </script>
 </body>
